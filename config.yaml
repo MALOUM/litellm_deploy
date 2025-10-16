@@ -1,0 +1,74 @@
+# LiteLLM Configuration for AWS Bedrock
+# Documentation: https://docs.litellm.ai/docs/
+
+model_list:
+  # Chat Model - Claude 3.7 Sonnet with Inference Profile ARN
+  - model_name: claude-3-7-sonnet
+    litellm_params:
+      model: bedrock/arn:aws:bedrock:us-east-1:818919165209:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0
+      aws_region_name: us-east-1
+      # Uses IAM instance profile - no credentials needed
+    model_info:
+      mode: chat
+      supports_function_calling: true
+      supports_streaming: true
+
+  # Embedding Model - Titan Embed Text v2
+  - model_name: titan-embed-text-v2
+    litellm_params:
+      model: bedrock/amazon.titan-embed-text-v2:0
+      aws_region_name: us-east-1
+    model_info:
+      mode: embedding
+
+# LiteLLM Settings
+litellm_settings:
+  # Langfuse Integration for observability (classic method - compatible with Langfuse v2.x)
+  success_callback: ["langfuse"]
+  failure_callback: ["langfuse"]
+  
+  # Logging (using new environment variable method)
+  json_logs: true
+  
+  # Request settings
+  drop_params: true # Drop unsupported params instead of failing
+  max_parallel_requests: 100
+  num_retries: 3
+  request_timeout: 600 # seconds
+  
+  # Fallback configuration
+  fallbacks: []
+  context_window_fallbacks: []
+
+# General settings
+general_settings:
+  master_key: "sk-1234"  # Change this! Used for authenticating requests
+  database_url: null  # Optional: for persistent storage
+  
+  # CORS settings
+  allowed_origins: ["*"]
+  
+  # Completion config
+  completion_model: null  # Model to use for proxy if none specified
+  
+  # Cache config (optional - requires Redis)
+  # cache: true
+  # cache_params:
+  #   type: "redis"
+  
+  # Budget config (optional)
+  # max_budget: 100
+  # budget_duration: "30d"
+  
+  # Redis config (optional - for caching)
+  redis_host: null  # Optional: for caching
+  redis_port: null
+  redis_password: null
+
+# Environment variables (set these in .env file)
+environment_variables:
+  AWS_REGION: "us-east-1"
+  AWS_DEFAULT_REGION: "us-east-1"
+  LANGFUSE_PUBLIC_KEY: os.environ/LANGFUSE_PUBLIC_KEY
+  LANGFUSE_SECRET_KEY: os.environ/LANGFUSE_SECRET_KEY
+  LANGFUSE_HOST: os.environ/LANGFUSE_HOST
